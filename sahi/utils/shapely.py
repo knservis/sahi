@@ -5,7 +5,7 @@ from typing import List
 
 from shapely.geometry import CAP_STYLE, JOIN_STYLE, GeometryCollection, MultiPolygon, Polygon, box
 from shapely.validation import make_valid
-
+from shapely.errors import TopologicalError
 
 def get_shapely_box(x: int, y: int, width: int, height: int) -> Polygon:
     """
@@ -226,6 +226,7 @@ class ShapelyAnnotation:
                 coco_bbox[1] = coco_bbox[1] - miny
         else:
             coco_bbox: List = []
+            raise TopologicalError("Empty polygon detected.")
         return coco_bbox
 
     def to_coco_bbox(self):

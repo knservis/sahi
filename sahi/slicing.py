@@ -140,10 +140,15 @@ def process_coco_annotations(
 
     sliced_coco_annotation_list: List[CocoAnnotation] = []
     for coco_annotation in coco_annotation_list:
-        if annotation_inside_slice(coco_annotation.json, slice_bbox):
-            sliced_coco_annotation = coco_annotation.get_sliced_coco_annotation(slice_bbox)
-            if sliced_coco_annotation.area / coco_annotation.area >= min_area_ratio:
-                sliced_coco_annotation_list.append(sliced_coco_annotation)
+        try:
+            if annotation_inside_slice(coco_annotation.json, slice_bbox):
+                sliced_coco_annotation = coco_annotation.get_sliced_coco_annotation(slice_bbox)
+                if sliced_coco_annotation.area / coco_annotation.area >= min_area_ratio:
+                    sliced_coco_annotation_list.append(sliced_coco_annotation)
+        except Exception as e:
+            logger.warning(f"Failed to process annotation: {coco_annotation.json}")
+            logger.warning(f"Error: {str(e)}")
+            raise e
     return sliced_coco_annotation_list
 
 
@@ -456,7 +461,7 @@ def slice_coco(
         save_path: str
             Path to the saved coco file
     """
-
+    verboselog = logger.info if verbose else lambda *a, **k: None
     # read coco file
     coco_dict: Dict = load_json(coco_annotation_file_path)
     # create image_id_to_annotation_list mapping
@@ -471,6 +476,7 @@ def slice_coco(
         # get annotation json list corresponding to selected coco image
         # slice image
         try:
+            verboselog(f"Processing image: {image_path} coco_annotation: {coco_image.annotations}")
             slice_image_result = slice_image(
                 image=image_path,
                 coco_annotation_list=coco_image.annotations,

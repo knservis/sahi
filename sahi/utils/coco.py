@@ -147,12 +147,14 @@ class CocoAnnotation:
                 segmentation=annotation_dict["segmentation"],
                 category_id=annotation_dict["category_id"],
                 category_name=category_name,
+                image_id=annotation_dict["image_id"],
             )
         else:
             return cls(
                 bbox=annotation_dict["bbox"],
                 category_id=annotation_dict["category_id"],
                 category_name=category_name,
+                image_id=annotation_dict["image_id"],
             )
 
     @classmethod
